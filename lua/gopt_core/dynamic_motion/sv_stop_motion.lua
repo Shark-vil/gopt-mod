@@ -1,7 +1,6 @@
 local GetConVar = GetConVar
 local ents_GetAll = ents.GetAll
 local IsStoppedMotionMovement = GOptCore.Api.IsStoppedMotionMovement
--- local AddMotionDelay = GOptCore.Api.AddMotionDelay
 local RemoveWaitMotion = GOptCore.Api.RemoveWaitMotion
 local SetLockMotion = GOptCore.Api.SetLockMotion
 --

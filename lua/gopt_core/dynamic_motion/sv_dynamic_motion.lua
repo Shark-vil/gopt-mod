@@ -1,15 +1,11 @@
 local IsValid = IsValid
 local table_remove = table.remove
 local constraint_GetAllConstrainedEntities = constraint.GetAllConstrainedEntities
--- local IsLag = GOptCore.Api.IsLag
 local pairs = pairs
 local math_abs = math.abs
 local MOVETYPE_VPHYSICS = MOVETYPE_VPHYSICS
--- local coroutine_running = coroutine.running
--- local coroutine_yield = coroutine.yield
 --
-CreateConVar('gopt_motion_optimization', '1', FCVAR_ARCHIVE, '', 0, 1)
-
+local cvar_no_childs = GetConVar('gopt_dynamic_motion_no_childs')
 local wait_entities = {}
 
 function GOptCore.Api.AddMotionDelay(ent, delay)
@@ -78,6 +74,13 @@ end
 function GOptCore.Api.IsValidStoppedMotionMovement(ent, skip_constraint)
 	if not IsValid(ent) or ent:GetMoveType() ~= MOVETYPE_VPHYSICS then return false end
 	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then return false end
+
+	if cvar_no_childs:GetBool() then
+		for _, v in pairs(constraint_GetAllConstrainedEntities(ent)) do
+			if v ~= ent then return end
+		end
+	end
+
 	if GOptCore.Api.IsMotionLocked(ent) then return false end
 	if GOptCore.Api.IsMotionDelay(ent) then return false end
 	if ent.GOpt_MotionPhysgunFreeze then return false end
@@ -86,23 +89,6 @@ function GOptCore.Api.IsValidStoppedMotionMovement(ent, skip_constraint)
 
 	local phy = ent:GetPhysicsObject()
 	if not IsValid(phy) or not phy:IsMotionEnabled() then return false end
-
-	-- if not skip_constraint then
-	-- 	local entities = GOptCore.Api.GetConstraintEntities(ent)
-	-- 	for i = 1, #entities do
-	-- 		local other_ent = entities[i]
-	-- 		if IsValid(other_ent)
-	-- 			and other_ent ~= ent
-	-- 			and not GOptCore.Api.IsValidStoppedMotionMovement(other_ent, true)
-	-- 		then
-	-- 			return false
-	-- 		end
-
-	-- 		if coroutine_running() then
-	-- 			coroutine_yield()
-	-- 		end
-	-- 	end
-	-- end
 
 	return true
 end

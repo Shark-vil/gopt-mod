@@ -113,6 +113,10 @@ scvar.Register('gopt_dynamic_motion', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
 	.Access(DefaultAccess)
 
+scvar.Register('gopt_dynamic_motion_no_childs', '1',
+	{ FCVAR_ARCHIVE }, '', 0, 1)
+	.Access(DefaultAccess)
+
 scvar.Register('gopt_dynamic_motion_max_unfreeze_per_second', '10',
 	{ FCVAR_ARCHIVE }, '', 0, 30)
 	.Access(DefaultAccess)

@@ -52,8 +52,6 @@ if GetConVar('gopt_update_optimization'):GetBool() then
 			function ent:Think(...)
 				if not IsFocus() or IsLag() or IsLagDifference() then return end
 
-				-- max_pass = GetMaxPass(ent)
-
 				if max_pass > 0 then
 					current_pass = current_pass - 1
 					if current_pass > 0 then return end
@@ -70,6 +68,7 @@ if GetConVar('gopt_update_optimization'):GetBool() then
 			end
 		end
 
+		-- May be removed. Inefficient, and in most cases will not work.
 		local originalRunBehaviour = ent.RunBehaviour
 		if originalRunBehaviour then
 			local current_pass = 0
@@ -77,8 +76,6 @@ if GetConVar('gopt_update_optimization'):GetBool() then
 
 			function ent:RunBehaviour(...)
 				if not IsFocus() or IsLag() or IsLagDifference() then return end
-
-				-- max_pass = GetMaxPass(ent)
 
 				if max_pass > 0 then
 					current_pass = current_pass - 1

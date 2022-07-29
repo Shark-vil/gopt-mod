@@ -24,6 +24,8 @@ local lang = slib.language({
 		smooth_unfreeze_desc = 'if this parameter is active, then when you try to unfreeze a lot of props, they will unfreeze gradually.',
 		dynamic_motion_title = 'Dynamic motion',
 		dynamic_motion_desc = 'this setting allows you to enable flexible freezing of items. If entities are at rest, their physics will be disabled until such time as they are not affected. This is useful if you want to protect your server from a lot of unused physics-enabled props. Also useful for local play.',
+		dynamic_motion_no_childs_title = 'Dynamics without wire',
+		dynamic_motion_no_childs_desc = 'Dynamic prop movement will only work if the object has no connections to other objects. Remove this if you want stricter restrictions.',
 		collision_lags_title = 'Collision lags',
 		collision_lags_desc = 'this setting prevents the server from crashing from a lot of bad collisions.',
 		collision_lags_flexable_title = 'Collision lags flexable',
@@ -71,6 +73,8 @@ local lang = slib.language({
 		smooth_unfreeze_desc = 'если этот параметр активен, то при попытке разморозить много пропсов они разморозятся постепенно.',
 		dynamic_motion_title = 'Динамическое движение',
 		dynamic_motion_desc = 'этот параметр позволяет включить гибкое замораживание элементов. Если сущности находятся в состоянии покоя, их физика будет отключена до тех пор, пока они не будут затронуты. Это полезно, если вы хотите защитить свой сервер от большого количества неиспользуемых объектов с физикой. Также полезно для локальной игры.',
+		dynamic_motion_no_childs_title = 'Динамика без связей',
+		dynamic_motion_no_childs_desc = 'Динамическое движение пропов будет работать только если объект не имеет никаких связей с другими объектами. Уберите это, если хотите более строгие ограничения.',
 		collision_lags_title = 'Лаги при столкновении',
 		collision_lags_desc = 'этот параметр предотвращает сбой сервера из-за большого количества плохих столкновений.',
 		collision_lags_flexable_title = 'Гибкие лаги при столкновении',
@@ -248,6 +252,9 @@ local function ServerMenu(panel)
 
 	AddCheckBox(panel, 'gopt_dynamic_motion',
 		lang.dynamic_motion_title, lang.dynamic_motion_desc)
+
+	AddCheckBox(panel, 'gopt_dynamic_motion_no_childs',
+		lang.dynamic_motion_no_childs_title, lang.dynamic_motion_no_childs_desc)
 
 	AddSliderBox(panel, 'gopt_dynamic_motion_max_unfreeze_per_second',
 		lang.dynamic_motion_max_unfreeze_per_second_title, lang.dynamic_motion_max_unfreeze_per_second_desc)

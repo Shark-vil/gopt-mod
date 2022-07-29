@@ -12,7 +12,7 @@ script:using('sh_focus.lua')
 script:using('sh_data_system.lua')
 script:using('sv_menu.lua')
 script:using('cl_menu.lua')
-script:using('sh_test.lua')
+-- script:using('sh_test.lua')
 
 script:using('lagdetectors/sh_framelag.lua')
 script:using('lagdetectors/sh_lagdifference.lua')
