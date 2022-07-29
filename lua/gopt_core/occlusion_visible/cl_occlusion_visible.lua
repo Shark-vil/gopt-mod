@@ -11,7 +11,13 @@ local LagDifference = GOptCore.Api.LagDifference
 local current_pass = 0
 local always_draw_distance = 1000000
 local draw_distance = 4000000
-local class_prop_physics = 'prop_physics'
+local is_occlusion_trace = false
+-- local class_prop_physics = 'prop_physics'
+
+local function SetOcclusionTrace(value)
+	value = value or GetConVar('gopt_occlusion_trace'):GetBool()
+	is_occlusion_trace = tobool(value)
+end
 
 local function SetDrawDistance(value)
 	value = value or GetConVar('gopt_occlusion_visible_max'):GetInt()
@@ -26,29 +32,35 @@ local function SetAlwaysDrawDistance(value)
 end
 
 local function IsValidEntity(ent)
-	if IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and (
-		ent:GetClass() == class_prop_physics
-		or ent:IsVehicle()
-		or ((ent:IsPlayer() or ent:IsNPC()) and slib.IsAlive(ent))
-		or ent:IsNextBot()
-	) then
-		return true
-	end
-	return false
+	return IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and not ent:slibIsDoor()
+
+	-- if IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and (
+	-- 	ent:GetClass() == class_prop_physics
+	-- 	or ent:IsVehicle()
+	-- 	or ((ent:IsPlayer() or ent:IsNPC()) and slib.IsAlive(ent))
+	-- 	or ent:IsNextBot()
+	-- ) then
+	-- 	return true
+	-- end
+	-- return false
 end
 
 local function AsyncProcess(yield, wait)
 	SetDrawDistance()
 	SetAlwaysDrawDistance()
+	SetOcclusionTrace()
+
+	local cvar_occlusion_visible = GetConVar('gopt_occlusion_visible')
+	local cvar_occlusion_visible_strict = GetConVar('gopt_occlusion_visible_strict')
 
 	while true do
-		local cvar_occlusion_visible = GetConVar('gopt_occlusion_visible'):GetBool()
-		if not cvar_occlusion_visible then
+		if not cvar_occlusion_visible:GetBool() or cvar_occlusion_visible_strict:GetBool() then
 			wait(1)
 		else
 			local ply = LocalPlayer()
 			local position = ply:GetPos()
 			local entities = ents_GetAll()
+			local playerWeapons = ply:GetWeapons()
 
 			yield()
 
@@ -63,13 +75,21 @@ local function AsyncProcess(yield, wait)
 			for i = 1, #entities do
 				local ent = entities[i]
 
-				if IsValidEntity(ent) then
+				if IsValidEntity(ent) and not table.HasValueBySeq(playerWeapons, ent) then
 					local entity_position = ent:GetPos()
 					local distance = entity_position:DistToSqr(position)
+					local is_draw = draw_distance == 0 or distance <= draw_distance
+					local is_always_draw = distance <= always_draw_distance
 
-					if distance <= draw_distance and (
-						distance <= always_draw_distance or ply:slibIsViewVector(entity_position)
-					) then
+					if not is_always_draw then
+						if is_occlusion_trace then
+							is_always_draw = ply:slibIsTraceEntity(ent, distance)
+						else
+							is_always_draw = ply:slibIsViewVector(entity_position)
+						end
+					end
+
+					if is_draw and is_always_draw then
 						if ent:GetNoDraw() then
 							ent:SetNoDraw(false)
 							ent.GOpt_OcclusionNoDraw = false
@@ -101,7 +121,11 @@ local function AsyncProcess(yield, wait)
 		yield()
 	end
 end
-async.Add('GOpt.OcclusionVisible', AsyncProcess)
+async.Add('GOpt.OcclusionVisible', AsyncProcess, true)
+
+cvars.AddChangeCallback('gopt_occlusion_trace', function(_, _, value)
+	SetOcclusionTrace(value)
+end, 'gopt_occlusion_trace')
 
 cvars.AddChangeCallback('gopt_occlusion_visible_max', function(_, _, value)
 	SetDrawDistance(value)
@@ -124,6 +148,6 @@ cvars.AddChangeCallback('gopt_occlusion_visible', function(_, _, value)
 			end
 		end
 	else
-		async.Add('GOpt.OcclusionVisible', AsyncProcess)
+		async.Add('GOpt.OcclusionVisible', AsyncProcess, true)
 	end
 end, 'gopt_occlusion_visible_async_update')

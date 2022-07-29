@@ -22,6 +22,8 @@ async.Add('GOpt.DynamicMotion.StopMotion', function(yield, wait)
 					RemoveWaitMotion(ent)
 					SetLockMotion(ent, true)
 
+					print('Stop motion', ent)
+
 					yield()
 				end
 			end
@@ -29,4 +31,4 @@ async.Add('GOpt.DynamicMotion.StopMotion', function(yield, wait)
 
 		wait(.1)
 	end
-end)
+end, true)

@@ -1,11 +1,17 @@
 local lang = slib.language({
 	['default'] = {
+		focus_optimization_title = 'Focus optimization',
+		focus_optimization_desc = 'disables rendering of the game if the window is not in focus.',
+		cvars_optimization_title = 'Cvars optimization',
+		cvars_optimization_desc = 'includes the most optimal convar parameters for the client. If you turn it off, it will return the previous settings.',
 		occlusion_visible_title = 'Area of visibility',
 		occlusion_visible_desc = 'this setting only renders the objects the player is looking at. Unfortunately, this works even if the player looks across the entire map. For more flexible customization, you can change the distance parameters.',
+		occlusion_trace_title = 'Raytracing visibility',
+		occlusion_trace_desc = 'use ray tracing to optimize visibility more. This is useful if there are many rooms and small spaces on the map. May cause incorrect display of buildings. Disable this option if it does not work correctly.',
 		occlusion_visible_min_title = 'Minimum visibility distance',
 		occlusion_visible_min_desc = 'the minimum distance at which objects will always be visible, even if the player is not looking at them.',
 		occlusion_visible_max_title = 'Maximum visibility distance',
-		occlusion_visible_max_desc = 'the maximum distance beyond which any objects will not be rendered, even if the player is looking at them.',
+		occlusion_visible_max_desc = 'the maximum distance beyond which any objects will not be rendered, even if the player is looking at them. Set this value to "0" if you want to always see the objects you are looking at.',
 		anti_crash_title = 'Anti crash',
 		anti_crash_desc = 'if this setting is active, then when lags are detected, the system will try to freeze the most malicious objects, sorting them by their number on the map. Knows how to detect large buildings and the same type of spam entities.',
 		anti_crash_hard_mode_title = 'Anti crash (Hard Mode)',
@@ -48,14 +54,21 @@ local lang = slib.language({
 		dynamic_motion_max_unfreeze_per_second_desc = 'how many objects can be unfrozen in one second.',
 		dynamic_motion_unfreeze_delay_title = 'Unfreeze delay',
 		dynamic_motion_unfreeze_delay_desc = 'the delay between unfreezing a new collection of objects.',
+		gopt_entity_tickrate = 'limits the number of ticks an entity can take. Not recommended for vehicles and weapons.'
 	},
 	['russian'] = {
+		focus_optimization_title = 'Оптимизация фокуса',
+		focus_optimization_desc = 'отключает рендер игры, если окно не в фокусе.',
+		cvars_optimization_title = 'Оптимизация кваров',
+		cvars_optimization_desc = 'включает наиболее оптимальные параметры конваров для клиента. Если выключить - вернёт прежние настройки.',
 		occlusion_visible_title = 'Зона видимости',
 		occlusion_visible_desc = 'этот параметр отображает только те объекты, на которые смотрит игрок. К сожалению, это работает, даже если игрок просматривает всю карту. Для более гибкой настройки вы можете изменить параметры расстояния.',
+		occlusion_trace_title = 'Трассировка зоны видимости',
+		occlusion_trace_desc = 'использовать трассировку лучей для большей оптимизации видимости. Это полезно, если на карте много комнат и маленьких пространств. Может вызвать некорректное отображение построек. Отключите этот параметр если он работает некорректно.',
 		occlusion_visible_min_title = 'Минимальное расстояние видимости',
 		occlusion_visible_min_desc = 'минимальное расстояние, на котором объекты всегда будут видны, даже если игрок на них не смотрит.',
 		occlusion_visible_max_title = 'Максимальное расстояние видимости',
-		occlusion_visible_max_desc = 'максимальное расстояние, за которым никакие объекты не будут отображаться, даже если игрок смотрит на них.',
+		occlusion_visible_max_desc = 'максимальное расстояние, за которым никакие объекты не будут отображаться, даже если игрок смотрит на них. Установите это значение на "0", если хотите всегда видеть объекты на которые вы смотрите.',
 		anti_crash_title = 'Анти краш',
 		anti_crash_desc = 'если эта настройка активна, то при обнаружении лагов система будет пытаться заморозить наиболее вредоносные объекты, отсортировав их по количеству на карте. Умеет обнаруживать большие постройки и однотипные спам-объекты.',
 		anti_crash_hard_mode_title = 'Анти краш (Жёсткий Режим)',
@@ -98,6 +111,7 @@ local lang = slib.language({
 		dynamic_motion_max_unfreeze_per_second_desc = 'сколько объектов можно разморозить за одну секунду',
 		dynamic_motion_unfreeze_delay_title = 'Задержка разморозки',
 		dynamic_motion_unfreeze_delay_desc = 'задержка между разморозкой новой коллекции объектов.',
+		gopt_entity_tickrate = 'ограничивает количество тиков, которые может совершить сущность. Не рекомендуется ставить для транспорта и оружия.'
 	},
 })
 
@@ -141,10 +155,77 @@ local function GeneralMenu(panel)
 
 	AddCheckBox(panel, 'gopt_update_optimization_second_frame',
 		lang.gopt_update_optimization_second_frame_title, lang.gopt_update_optimization_second_frame_desc)
+
+	AddHeaderBox(panel, 'Entity Tickrate')
+
+	panel:AddControl('Label', {
+		['Text'] = 'Description: ' .. lang.gopt_entity_tickrate,
+	})
+
+	AddSliderBox(panel, 'gopt_entity_tickrate_weapon', 'Weapon', '')
+	AddSliderBox(panel, 'gopt_entity_tickrate_npc', 'NPC', '')
+	AddSliderBox(panel, 'gopt_entity_tickrate_nextbot', 'NextBot', '')
+	AddSliderBox(panel, 'gopt_entity_tickrate_vehicle', 'Vehicle', '')
+	AddSliderBox(panel, 'gopt_entity_tickrate_other', 'Other', '')
+
+	panel:AddControl('Label', {
+		['Text'] = 'Ignore Entities',
+	})
+
+	local IgnoreEntitiesList = vgui.Create('DListView', panel)
+	IgnoreEntitiesList:SetSize(0, 250)
+	IgnoreEntitiesList:Dock(TOP)
+	IgnoreEntitiesList:DockMargin(5, 5, 5, 5)
+	IgnoreEntitiesList:SetMultiSelect(false)
+	IgnoreEntitiesList:AddColumn('Class')
+	IgnoreEntitiesList.OnRowSelected = function(lst, index, pnl)
+		if not LocalPlayer():IsAdmin() then return end
+		snet.InvokeServer('sv_gopt_menu_ignore_entities_list_delete', pnl:GetColumnText(1))
+	end
+
+	local AddIgnoreEntityTextBox = vgui.Create('DTextEntry', panel)
+	AddIgnoreEntityTextBox:Dock(TOP)
+	AddIgnoreEntityTextBox:DockMargin(5, 5, 5, 5)
+	AddIgnoreEntityTextBox:SetPlaceholderText('Add entity class')
+	AddIgnoreEntityTextBox.OnEnter = function(self)
+		if not LocalPlayer():IsAdmin() then return end
+
+		local entityClass = self:GetValue()
+		entityClass = string.Trim(entityClass)
+		entityClass = string.lower(entityClass)
+
+		if not entityClass or #entityClass == 0 then return end
+
+		for _, line in ipairs(IgnoreEntitiesList:GetLines()) do
+				if line:GetValue(1) == entityClass then return end
+		end
+
+		snet.InvokeServer('sv_gopt_menu_ignore_entities_list_add', entityClass)
+		AddIgnoreEntityTextBox:SetValue('')
+	end
+
+	panel:AddControl('Label', { ['Text'] = '' })
+
+	snet.Callback('cl_gopt_menu_ignore_entities_list_sync_menu', function(_, entities)
+		IgnoreEntitiesList:Clear()
+		for _, v in ipairs(entities) do
+			IgnoreEntitiesList:AddLine(v)
+		end
+	end)
+
+	snet.InvokeServer('sv_gopt_menu_ignore_entities_list_sync')
 end
 
 local function ClientMenu(panel)
+	AddHeaderBox(panel, 'Game')
+
+	AddCheckBox(panel, 'gopt_focus_optimization',
+		lang.focus_optimization_title, lang.focus_optimization_desc)
+
 	AddHeaderBox(panel, 'Occlusion')
+
+	AddCheckBox(panel, 'gopt_occlusion_trace',
+		lang.occlusion_trace_title, lang.occlusion_trace_desc)
 
 	AddCheckBox(panel, 'gopt_occlusion_visible',
 		lang.occlusion_visible_title, lang.occlusion_visible_desc)
@@ -154,6 +235,11 @@ local function ClientMenu(panel)
 
 	AddSliderBox(panel, 'gopt_occlusion_visible_max',
 		lang.occlusion_visible_max_title, lang.occlusion_visible_max_desc)
+
+	AddHeaderBox(panel, 'Cvars')
+
+	AddCheckBox(panel, 'gopt_cvars_optimization',
+		lang.cvars_optimization_title, lang.cvars_optimization_desc)
 end
 
 local function ServerMenu(panel)
@@ -268,4 +354,8 @@ hook.Add('PopulateToolMenu', 'GOpt.RegisterToolMenu', function()
 
 	spawnmenu.AddToolMenuOption('Options', 'GOpt', 'GOOPT_Menu_Scripts',
 		'#Scripts settings', '', '', ScriptsMenu)
+end)
+
+snet.Callback('cl_gopt_menu_ignore_entities_list_sync', function(_, entities)
+	GOptCore.Storage.IgnoreEntitiesTickrate = entities
 end)

@@ -7,6 +7,17 @@ GOptCore.Storage.AlreadyIncludedScripts = GOptCore.Storage.AlreadyIncludedScript
 GOptCore.Storage.IncludeLocker = GOptCore.Storage.IncludeLocker or false
 --
 local past_includer_folder
+local exclude_scripts = {
+	'dlib/*',
+	'slib/*',
+}
+
+local function IsExcludeScript(script_path)
+	for i = 1, #exclude_scripts do
+		if string.find(script_path, exclude_scripts[i]) then return true end
+	end
+	return false
+end
 
 local function FoundScriptPathParsingBySegments(script_path)
 	local combine_explode = string.Explode('/', script_path)
@@ -91,6 +102,9 @@ function GOptCore.Api.ScriptRegisterFromClients(script_path)
 	-- GOptCore.Storage.AlreadyRegistredScripts[script_path] = true
 
 	local real_script_path = FoundScriptPath(script_path, current_includer_folder)
+	if not real_script_path then
+		return GOptCore.Storage.OriginalAddCSLuaFile(script_path)
+	end
 
 	if GOptCore.Storage.AlreadyRegistredScripts[real_script_path] then return end
 	GOptCore.Storage.AlreadyRegistredScripts[real_script_path] = true
@@ -105,7 +119,7 @@ function GOptCore.Api.ScriptRegisterFromClients(script_path)
 end
 
 function GOptCore.Api.ScriptInclude(script_path)
-	if not GetConVar('gopt_scripts_optimization'):GetBool() then
+	if not GetConVar('gopt_scripts_optimization'):GetBool() or IsExcludeScript(script_path) then
 		return GOptCore.Storage.OriginalInclude(script_path)
 	end
 
@@ -120,6 +134,10 @@ function GOptCore.Api.ScriptInclude(script_path)
 	if includer_path:sub(1, 1) == '@' then
 		current_includer_path = ScriptNameNormalize(includer_path:sub(2))
 		current_includer_folder = string.GetPathFromFilename(current_includer_path)
+
+		if IsExcludeScript(current_includer_path) then
+			return GOptCore.Storage.OriginalInclude(script_path)
+		end
 
 		if not GOptCore.Storage.AlreadyIncludedScripts[current_includer_path] and (
 			string.StartWith(includer_path, '@gamemodes/')

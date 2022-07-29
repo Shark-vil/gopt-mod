@@ -38,7 +38,13 @@ function GOptCore.Api.IsSkippedClass(entity_class)
 end
 
 if CLIENT then
+	CreateConVar('gopt_occlusion_visible_strict', '0',
+		{ FCVAR_ARCHIVE }, '', 0, 1)
+
 	CreateConVar('gopt_occlusion_visible', '1',
+		{ FCVAR_ARCHIVE }, '', 0, 1)
+
+	CreateConVar('gopt_occlusion_trace', '0',
 		{ FCVAR_ARCHIVE }, '', 0, 1)
 
 	CreateConVar('gopt_occlusion_visible_min', '1000',
@@ -46,9 +52,15 @@ if CLIENT then
 
 	CreateConVar('gopt_occlusion_visible_max', '2000',
 		{ FCVAR_ARCHIVE }, '', 0, 5000)
+
+	CreateConVar('gopt_cvars_optimization', '1',
+		{ FCVAR_ARCHIVE }, '', 0, 1)
 end
 
 CreateConVar('gopt_log', '1',
+	{ FCVAR_ARCHIVE }, '', 0, 1)
+
+CreateConVar('gopt_focus_optimization', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
 
 CreateConVar('gopt_update_optimization', '1',
@@ -71,6 +83,26 @@ CreateConVar('gopt_scripts_optimization_cache_loader', '1',
 
 CreateConVar('gopt_scripts_optimization_cache_type', 'sql',
 	{ FCVAR_ARCHIVE }, 'Types - sql, file, all')
+
+scvar.Register('gopt_entity_tickrate_weapon', '0',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
+
+scvar.Register('gopt_entity_tickrate_npc', '0',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
+
+scvar.Register('gopt_entity_tickrate_nextbot', '0',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
+
+scvar.Register('gopt_entity_tickrate_vehicle', '0',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
+
+scvar.Register('gopt_entity_tickrate_other', '0',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
 
 scvar.Register('gopt_npc_logic_optimization', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)

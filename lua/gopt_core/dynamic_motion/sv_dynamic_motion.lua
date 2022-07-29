@@ -4,6 +4,7 @@ local constraint_GetAllConstrainedEntities = constraint.GetAllConstrainedEntitie
 -- local IsLag = GOptCore.Api.IsLag
 local pairs = pairs
 local math_abs = math.abs
+local MOVETYPE_VPHYSICS = MOVETYPE_VPHYSICS
 -- local coroutine_running = coroutine.running
 -- local coroutine_yield = coroutine.yield
 --
@@ -75,7 +76,7 @@ function GOptCore.Api.GetConstraintEntities(ent)
 end
 
 function GOptCore.Api.IsValidStoppedMotionMovement(ent, skip_constraint)
-	if not IsValid(ent) then return false end
+	if not IsValid(ent) or ent:GetMoveType() ~= MOVETYPE_VPHYSICS then return false end
 	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then return false end
 	if GOptCore.Api.IsMotionLocked(ent) then return false end
 	if GOptCore.Api.IsMotionDelay(ent) then return false end

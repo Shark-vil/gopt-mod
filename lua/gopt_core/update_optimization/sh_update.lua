@@ -1,143 +1,74 @@
-local GetConVar = GetConVar
-local warning_color = Color(245, 148,22)
-local text_color = Color(185, 185, 185)
-local warning_header = '[WARNING] '
-local warning_message = 'lag noticed! "Think" hooks were forcibly slowed down.'
-local original_hookAdd = hook.Add
-local original_hookRemove = hook.Remove
-local original_hookGetTable = hook.GetTable
-local async_resume = coroutine.resume
-local async_create = coroutine.create
-local async_yield = coroutine.yield
 local IsLag = GOptCore.Api.IsLag
 local IsLagDifference = GOptCore.Api.IsLagDifference
-local WriteLog = GOptCore.Api.WriteLog
-local max_pass = 20
-local current_pass = 0
-local CurTime = CurTime
-local last_warning_notify_time = 0
-local registred_think_functions = {}
-local is_second_frame = false
-local process
+local originalHookAdd = hook.Add
+local table_HasValueBySeq =  table.HasValueBySeq
+local string_StartWith = string.StartWith
+local string_Trim = string.Trim
+local isstring = isstring
+local IsFocus = GOptCore.Api.IsGameFocus
 
-local function AsyncProcess(...)
-	while true do
-		local enable_opt = GetConVar('gopt_update_optimization'):GetBool()
-		local enable_second_frame = GetConVar('gopt_update_optimization_second_frame'):GetBool()
+local updateHooks = {
+	'think',
+	'tick',
+}
+local systemHooks = {
+	'slib',
+	'gopt'
+}
 
-		if enable_second_frame then
-			if not is_second_frame then
-				is_second_frame = true
-				async_yield()
-				continue
-			else
-				is_second_frame = false
-			end
-		end
-
-		for i = 1, #registred_think_functions do
-			local value = registred_think_functions[i]
-			if value and value.func then value.func(...) end
-			if enable_opt and (IsLag() or IsLagDifference()) then
-				if last_warning_notify_time < CurTime() then
-					MsgC(warning_color, warning_header, text_color, warning_message, '\n')
-					if SERVER then
-						WriteLog('[Lags Compensation] ', warning_message)
-					end
-					last_warning_notify_time = CurTime() + 2
-				end
-				async_yield()
-			end
-		end
-
-		-- if enable_opt then
-		-- 	if current_pass == max_pass then
-		-- 		current_pass = 0
-		-- 		async_yield()
-		-- 	else
-		-- 		current_pass = current_pass + 1
-		-- 	end
-		-- end
-
-		async_yield()
+local function IsSystemHook(hookName)
+	if SERVER and not isstring(hookName) then
+		return isentity(hookName) and hookName:IsWeapon()
 	end
-end
 
-local function IsSkippedHook(hookName)
-	if not isstring(hookName) then return false end
-
-	local skipped_hooks = {
-		'slib_async_GOpt*',
-		'GOpt*',
-	}
-
-	for i = 1, #skipped_hooks do
-		if string.find(hookName, skipped_hooks[i]) then return true end
+	local normalHookName = string_Trim(hookName:lower())
+	for i = 1, #systemHooks do
+		if string_StartWith(normalHookName, systemHooks[i]) then
+			return true
+		end
 	end
 
 	return false
 end
 
-original_hookAdd('Think', 'GOpt.OptimizationThinkProcess', function(...)
-	if not process or not async_resume(process, ...) then
-		process = async_create(AsyncProcess)
-		async_resume(process, ...)
+local function OverrideHookAdd()
+	function hook.Add(hookType, hookName, func)
+		local normalHookType = string_Trim(hookType:lower())
+		local hasSecondFrame = false
+		local useSecondFrame = GetConVar('gopt_update_optimization_second_frame'):GetBool()
+
+		if not table_HasValueBySeq(updateHooks, normalHookType) or IsSystemHook(hookName) then
+			return originalHookAdd(hookType, hookName, func)
+		end
+
+		return originalHookAdd(hookType, hookName, function(...)
+			if not IsFocus() or IsLag() or IsLagDifference() then return end
+			if useSecondFrame then
+				hasSecondFrame = not hasSecondFrame
+				if not hasSecondFrame then return end
+			end
+			return func(...)
+		end)
 	end
+end
+
+local useUpdateOptimization = GetConVar('gopt_update_optimization'):GetBool()
+if useUpdateOptimization then
+	OverrideHookAdd()
+end
+
+hook.Add('InitPostEntity', 'GOpt.UpdateOptimizer.Init', function()
+	timer.Simple(1, function()
+		local allowHooks = hook.GetTable()
+		if allowHooks['Think'] then
+			for hookName, hookFunction in pairs(allowHooks['Think']) do
+				hook.Add('Think', hookName, hookFunction)
+			end
+		end
+		if allowHooks['Tick'] then
+			for hookName, hookFunction in pairs(allowHooks['Tick']) do
+				hook.Add('Tick', hookName, hookFunction)
+			end
+		end
+	end)
 end)
-
-function hook.Add(hookType, hookName, func)
-	if isstring(hookType) and hookType:lower() == 'think' and not IsSkippedHook(hookName) then
-		local index, value = table.WhereFindBySeq(registred_think_functions, function(_, v)
-			return v.hookName == hookName
-		end)
-
-		if index ~= -1 then
-			value.func = func
-		else
-			table.insert(registred_think_functions, {
-				hookName = hookName,
-				func = func
-			})
-		end
-
-		return
-	end
-
-	return original_hookAdd(hookType, hookName, func)
-end
-
-function hook.Remove(hookType, hookName)
-	if isstring(hookType) and hookType:lower() == 'think' and not IsSkippedHook(hookName) then
-		local index, _ = table.WhereFindBySeq(registred_think_functions, function(_, v)
-			return v.hookName == hookName
-		end)
-
-		if index ~= -1 then
-			table.remove(registred_think_functions, index)
-			return
-		end
-	end
-
-	return original_hookRemove(hookType, hookName)
-end
-
-local registred_hooks = hook.GetTable()
-if registred_hooks and registred_hooks['Think'] then
-	for hookName, func in pairs(registred_hooks['Think']) do
-		if not IsSkippedHook(hookName) then
-			hook.Remove('Think', hookName)
-			hook.Add('Think', hookName, func)
-		end
-	end
-end
-
-function hook.GetTable()
-	local hooks_list = original_hookGetTable()
-
-	for _, v in ipairs(registred_think_functions) do
-		hooks_list['Think'] = hooks_list['Think'] or {}
-		hooks_list['Think'][v.hookName] = v.func
-	end
-
-	return hooks_list
-end

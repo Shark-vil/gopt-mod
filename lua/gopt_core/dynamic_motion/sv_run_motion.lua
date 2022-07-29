@@ -11,6 +11,8 @@ local RemoveWaitMotionById = GOptCore.Api.RemoveWaitMotionById
 --
 
 async.Add('GOpt.DynamicMotion.EnableWaitEntities', function(yield, wait)
+	local current_pass = 0
+
 	while true do
 		if not GetConVar('gopt_dynamic_motion'):GetBool() then
 			wait(1)
@@ -34,12 +36,19 @@ async.Add('GOpt.DynamicMotion.EnableWaitEntities', function(yield, wait)
 					if IsValid(phy) then
 						phy:EnableMotion(true)
 						phy:Wake()
+						phy:SetVelocity(Vector(0, 0, 0))
 
 						if IsLag() then
 							wait(.1)
 						else
 							yield()
 						end
+					end
+
+					current_pass = current_pass + 1
+					if current_pass >= 1 / slib.deltaTime then
+						current_pass = 0
+						yield()
 					end
 				end
 
@@ -49,4 +58,4 @@ async.Add('GOpt.DynamicMotion.EnableWaitEntities', function(yield, wait)
 
 		yield()
 	end
-end)
+end, true)
