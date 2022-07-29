@@ -1,13 +1,19 @@
 local lang = slib.language({
 	['default'] = {
+		control_description = 'Description: ',
 		focus_optimization_title = 'Focus optimization',
 		focus_optimization_desc = 'disables rendering of the game if the window is not in focus.',
 		cvars_optimization_title = 'Cvars optimization',
 		cvars_optimization_desc = 'includes the most optimal convar parameters for the client. If you turn it off, it will return the previous settings.',
+		occlusion_ignore_npc = 'Ignore for NPC\'s',
+		occlusion_ignore_players = 'Ignore for players',
+		occlusion_ignore_vehicles = 'Ignore for vehicles',
 		occlusion_visible_title = 'Area of visibility',
 		occlusion_visible_desc = 'this setting only renders the objects the player is looking at. Unfortunately, this works even if the player looks across the entire map. For more flexible customization, you can change the distance parameters.',
 		occlusion_trace_title = 'Raytracing visibility',
 		occlusion_trace_desc = 'use ray tracing to optimize visibility more. This is useful if there are many rooms and small spaces on the map. May cause incorrect display of buildings. Disable this option if it does not work correctly.',
+		occlusion_visible_strict_title = 'Strict tracing',
+		occlusion_visible_strict_desc = 'Uses a stricter tracing mechanism. (Not recommended, this feature is experimental and may be removed in the future.)',
 		occlusion_visible_min_title = 'Minimum visibility distance',
 		occlusion_visible_min_desc = 'the minimum distance at which objects will always be visible, even if the player is not looking at them.',
 		occlusion_visible_max_title = 'Maximum visibility distance',
@@ -49,14 +55,20 @@ local lang = slib.language({
 		gopt_entity_tickrate = 'limits the number of ticks an entity can take. Not recommended for vehicles and weapons.'
 	},
 	['russian'] = {
+		control_description = 'Описание: ',
 		focus_optimization_title = 'Оптимизация фокуса',
 		focus_optimization_desc = 'отключает рендер игры, если окно не в фокусе.',
 		cvars_optimization_title = 'Оптимизация кваров',
 		cvars_optimization_desc = 'включает наиболее оптимальные параметры конваров для клиента. Если выключить - вернёт прежние настройки.',
+		occlusion_ignore_npc = 'Игнорировать для NPC\'s',
+		occlusion_ignore_players = 'Игнорировать для игроков',
+		occlusion_ignore_vehicles = 'Игнорировать для автотранспорта',
 		occlusion_visible_title = 'Зона видимости',
 		occlusion_visible_desc = 'этот параметр отображает только те объекты, на которые смотрит игрок. К сожалению, это работает, даже если игрок просматривает всю карту. Для более гибкой настройки вы можете изменить параметры расстояния.',
 		occlusion_trace_title = 'Трассировка зоны видимости',
 		occlusion_trace_desc = 'использовать трассировку лучей для большей оптимизации видимости. Это полезно, если на карте много комнат и маленьких пространств. Может вызвать некорректное отображение построек. Отключите этот параметр если он работает некорректно.',
+		occlusion_visible_strict_title = 'Строгая трассировка',
+		occlusion_visible_strict_desc = 'Использует более строгий механизм трассировки. (Не рекомендуется использовать, функция эксперементальная и может быть удалена в будущем.)',
 		occlusion_visible_min_title = 'Минимальное расстояние видимости',
 		occlusion_visible_min_desc = 'минимальное расстояние, на котором объекты всегда будут видны, даже если игрок на них не смотрит.',
 		occlusion_visible_max_title = 'Максимальное расстояние видимости',
@@ -109,9 +121,13 @@ local function AddCheckBox(panel, cvar, name, description)
 	panel:AddControl('CheckBox', {
 		['Label'] = name,
 		['Command'] = cvar
-	}) panel:AddControl('Label', {
-		['Text'] = 'Description: ' .. description,
 	})
+
+	if description and description ~= '' then
+		panel:AddControl('Label', {
+			['Text'] = lang.control_description .. description,
+		})
+	end
 end
 
 local function AddSliderBox(panel, cvar, name, description, has_float)
@@ -121,9 +137,13 @@ local function AddSliderBox(panel, cvar, name, description, has_float)
 		['Type'] = has_float and 'Float' or 'Integer',
 		['Min'] = GetConVar(cvar):GetMin(),
 		['Max'] = GetConVar(cvar):GetMax(),
-	}) panel:AddControl('Label', {
-		['Text'] = 'Description: ' .. description,
 	})
+
+	if description and description ~= '' then
+		panel:AddControl('Label', {
+			['Text'] = lang.control_description .. description,
+		})
+	end
 end
 
 local function GeneralMenu(panel)
@@ -211,6 +231,9 @@ local function ClientMenu(panel)
 	AddCheckBox(panel, 'gopt_occlusion_trace',
 		lang.occlusion_trace_title, lang.occlusion_trace_desc)
 
+	AddCheckBox(panel, 'gopt_occlusion_visible_strict',
+		lang.occlusion_visible_strict_title, lang.occlusion_visible_strict_desc)
+
 	AddCheckBox(panel, 'gopt_occlusion_visible',
 		lang.occlusion_visible_title, lang.occlusion_visible_desc)
 
@@ -219,6 +242,10 @@ local function ClientMenu(panel)
 
 	AddSliderBox(panel, 'gopt_occlusion_visible_max',
 		lang.occlusion_visible_max_title, lang.occlusion_visible_max_desc)
+
+	AddCheckBox(panel, 'gopt_occlusion_ignore_npc', lang.occlusion_ignore_npc)
+	AddCheckBox(panel, 'gopt_occlusion_ignore_players', lang.occlusion_ignore_players)
+	AddCheckBox(panel, 'gopt_occlusion_ignore_vehicles', lang.occlusion_ignore_vehicles)
 
 	AddHeaderBox(panel, 'Cvars')
 

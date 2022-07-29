@@ -21,6 +21,9 @@ local zero_angle = Angle()
 local current_pass = 0
 local local_player = nil
 local cvar_occlusion_visible_strict = GetConVar('gopt_occlusion_visible_strict')
+local cvar_occlusion_ignore_npc = GetConVar('gopt_occlusion_ignore_npc')
+local cvar_occlusion_ignore_players = GetConVar('gopt_occlusion_ignore_players')
+local cvar_occlusion_ignore_vehicles = GetConVar('gopt_occlusion_ignore_vehicles')
 
 ---------------------------------------
 -- Functions
@@ -93,14 +96,22 @@ end
 local function is_valid_entity(ent)
 	if not IsValid(ent) then return false end
 
-	if ent:IsNPC()
-		or ent:IsVehicle()
-		or ent:IsNextBot()
-		or ent:IsPlayer()
-		or ent:slibIsDoor()
-	then
-		return true
+	local is_npc = ent:IsNPC() or ent:IsNextBot()
+	if is_npc then
+		return not cvar_occlusion_ignore_npc:GetBool()
 	end
+
+	local is_vehicle = ent:IsVehicle()
+	if is_vehicle then
+		return not cvar_occlusion_ignore_vehicles:GetBool()
+	end
+
+	local is_player = ent:IsPlayer()
+	if is_player then
+		return not cvar_occlusion_ignore_players:GetBool()
+	end
+
+	if ent:slibIsDoor() then return true end
 
 	local class = ent:GetClass()
 	if class == 'prop_physics' or class == 'prop_static' then return true end

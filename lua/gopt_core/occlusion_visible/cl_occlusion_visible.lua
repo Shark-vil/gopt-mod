@@ -12,6 +12,9 @@ local current_pass = 0
 local always_draw_distance = 1000000
 local draw_distance = 4000000
 local is_occlusion_trace = false
+local cvar_occlusion_ignore_npc = GetConVar('gopt_occlusion_ignore_npc')
+local cvar_occlusion_ignore_players = GetConVar('gopt_occlusion_ignore_players')
+local cvar_occlusion_ignore_vehicles = GetConVar('gopt_occlusion_ignore_vehicles')
 -- local class_prop_physics = 'prop_physics'
 
 local function SetOcclusionTrace(value)
@@ -32,17 +35,26 @@ local function SetAlwaysDrawDistance(value)
 end
 
 local function IsValidEntity(ent)
-	return IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and not ent:slibIsDoor()
+		if IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and not ent:slibIsDoor() then
+			local is_npc = ent:IsNPC() or ent:IsNextBot()
+			if is_npc then
+				return not cvar_occlusion_ignore_npc:GetBool()
+			end
 
-	-- if IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and (
-	-- 	ent:GetClass() == class_prop_physics
-	-- 	or ent:IsVehicle()
-	-- 	or ((ent:IsPlayer() or ent:IsNPC()) and slib.IsAlive(ent))
-	-- 	or ent:IsNextBot()
-	-- ) then
-	-- 	return true
-	-- end
-	-- return false
+			local is_vehicle = ent:IsVehicle()
+			if is_vehicle then
+				return not cvar_occlusion_ignore_vehicles:GetBool()
+			end
+
+			local is_player = ent:IsPlayer()
+			if is_player then
+				return not cvar_occlusion_ignore_players:GetBool()
+			end
+
+			return true
+		end
+
+		return false
 end
 
 local function AsyncProcess(yield, wait)
@@ -90,15 +102,11 @@ local function AsyncProcess(yield, wait)
 					end
 
 					if is_draw and is_always_draw then
-						if ent:GetNoDraw() then
-							ent:SetNoDraw(false)
-							ent.GOpt_OcclusionNoDraw = false
-						end
+						ent:SetNoDraw(false)
+						ent.GOpt_OcclusionNoDraw = false
 					else
-						if not ent:GetNoDraw() then
-							ent:SetNoDraw(true)
-							ent.GOpt_OcclusionNoDraw = true
-						end
+						ent:SetNoDraw(true)
+						ent.GOpt_OcclusionNoDraw = true
 					end
 
 					local max_pass

@@ -44,6 +44,15 @@ if CLIENT then
 	CreateConVar('gopt_occlusion_visible', '1',
 		{ FCVAR_ARCHIVE }, '', 0, 1)
 
+	CreateConVar('gopt_occlusion_ignore_npc', '0',
+		{ FCVAR_ARCHIVE }, '', 0, 1)
+
+	CreateConVar('gopt_occlusion_ignore_players', '0',
+		{ FCVAR_ARCHIVE }, '', 0, 1)
+
+	CreateConVar('gopt_occlusion_ignore_vehicles', '0',
+		{ FCVAR_ARCHIVE }, '', 0, 1)
+
 	CreateConVar('gopt_occlusion_trace', '0',
 		{ FCVAR_ARCHIVE }, '', 0, 1)
 
