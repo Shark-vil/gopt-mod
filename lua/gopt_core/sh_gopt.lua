@@ -69,21 +69,6 @@ CreateConVar('gopt_update_optimization', '1',
 CreateConVar('gopt_update_optimization_second_frame', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
 
-CreateConVar('gopt_scripts_optimization', '1',
-	{ FCVAR_ARCHIVE }, '', 0, 1)
-
-CreateConVar('gopt_scripts_optimization_cache', '1',
-	{ FCVAR_ARCHIVE }, '', 0, 1)
-
-CreateConVar('gopt_scripts_optimization_cache_compress', '1',
-	{ FCVAR_ARCHIVE }, '', 0, 1)
-
-CreateConVar('gopt_scripts_optimization_cache_loader', '1',
-	{ FCVAR_ARCHIVE }, '', 0, 1)
-
-CreateConVar('gopt_scripts_optimization_cache_type', 'sql',
-	{ FCVAR_ARCHIVE }, 'Types - sql, file, all')
-
 scvar.Register('gopt_entity_tickrate_weapon', '0',
 	{ FCVAR_ARCHIVE }, '', 0, 30)
 	.Access(DefaultAccess)

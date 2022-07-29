@@ -32,20 +32,10 @@ local lang = slib.language({
 		collision_lags_constraints_desc = 'if this parameter is enabled, then all entities bound by constraints will also be frozen.',
 		collision_lags_constraints_flexable_title = 'Collision lags constraints flexable',
 		collision_lags_constraints_flexable_desc = 'if this parameter is enabled, then constrained entities will be frozen only when lags are detected.',
-		gopt_scripts_optimization_title = 'Script optimization',
-		gopt_scripts_optimization_desc = 'overrides the default script launcher and adds some optimization techniques. It also reduces the size of the code and caches it, making reloading the game faster. WARNING, THIS OPTION MAY BREAK SOME ADDONS UNDER CERTAIN CIRCUMSTANCES. DO NOT USE THIS IF YOU HAVE PROBLEMS!',
-		gopt_scripts_optimization_cache_title = 'Cache scripts',
-		gopt_scripts_optimization_cache_desc = 'if enabled, scripts will be cached in the file system and used on reload. The cache is not updated after creation and needs to be cleared if some addons have been updated.',
-		gopt_scripts_optimization_cache_loader_title = 'Use cache loader',
-		gopt_scripts_optimization_cache_loader_desc = 'if enabled, scripts will be loaded from the cache. If disabled, the cache will be updated every time the game is loaded.',
-		gopt_scripts_optimization_cache_type_title = 'Caching type',
-		gopt_scripts_optimization_cache_type_desc = 'filesystem type to be used for caching scripts. Recommended - SQL',
 		gopt_cl_gopt_clear_scripts_cache_title = 'Clear client cache',
 		gopt_sv_gopt_clear_scripts_cache_title = 'Clear server cache',
 		gopt_log_title = 'Enable logs',
 		gopt_log_desc = 'if enabled, the system operation history will be written to the "data/gopt_data/log.txt" file.',
-		gopt_scripts_optimization_cache_compress_title = 'Use compression',
-		gopt_scripts_optimization_cache_compress_desc = 'compresses data in the file system to take up less space. Only for storage type - file. (Warning! After changing this setting, you need to clear the cache!)',
 		gopt_update_optimization_title = 'Think optimization',
 		gopt_update_optimization_desc = 'in case of lags, "Think" type hooks will be executed less often. This setting may affect gameplay and interface visualization.',
 		gopt_update_optimization_second_frame_title = 'Update with second frame',
@@ -89,20 +79,10 @@ local lang = slib.language({
 		collision_lags_constraints_desc = 'если этот параметр включен, то все объекты связанные ограничениями также будут заморожены.',
 		collision_lags_constraints_flexable_title = 'Гибкие лаги при столкновении - соединения',
 		collision_lags_constraints_flexable_desc = 'если этот параметр включен, то связанные объекты будут заморожены только при обнаружении лагов.',
-		gopt_scripts_optimization_title = 'Оптимизация скриптов',
-		gopt_scripts_optimization_desc = 'переопределяет стандартный лаунчер скриптов и добавляет некоторые методы оптимизации. Так-же уменьшает размер кода, и кэширует его, делая повторную загрузку игры быстрее. ВНИМАНИЕ, ЭТА ОПЦИЯ МОЖЕТ СЛОМАТЬ НЕКОТОРЫЕ АДДОНЫ ПРИ ОПРЕДЕЛЁННЫХ ОБСТОЯТЕЛЬСТВАХ. НЕ ИСПОЛЬЗУЙТЕ ЭТО ЕСЛИ У ВАС ВОЗНИКАЮТ ПРОБЛЕМЫ!',
-		gopt_scripts_optimization_cache_title = 'Кэшировать скрипты',
-		gopt_scripts_optimization_cache_desc = 'если включено, то скрипты будут кэшироваться в файловой системе, и использоваться при повторной загрузке. Кэш не обновляется после создания, и его нужно очищать, если некоторые аддоны были обновлены.',
-		gopt_scripts_optimization_cache_loader_title = 'Использовать загрузчик кэша',
-		gopt_scripts_optimization_cache_loader_desc = 'если включено, то скрипты будут загружаться из кэша. Если выключено, то кэш будет обновлятся каждый раз при загрузке игры.',
-		gopt_scripts_optimization_cache_type_title = 'Тип кэширования',
-		gopt_scripts_optimization_cache_type_desc = 'тип файловой системы который будет использоватся для кэширования скриптов. Рекомендуется - SQL',
 		gopt_cl_gopt_clear_scripts_cache_title = 'Очистить кеш клиента',
 		gopt_sv_gopt_clear_scripts_cache_title = 'Очистить кеш сервера',
 		gopt_log_title = 'Включить логи',
 		gopt_log_desc = 'если включено, в файл "data/gopt_data/log.txt" будет записываться история работы систем.',
-		gopt_scripts_optimization_cache_compress_title = 'Использовать сжатие',
-		gopt_scripts_optimization_cache_compress_desc = 'сжимает данные в файловой системе для того чтобы занимать меньше места. Только для типа хранилища - file. (Внимание! После изменения этого параметра вам нужно очистить кэш!)',
 		gopt_update_optimization_title = 'Оптимизация обновлений',
 		gopt_update_optimization_desc = 'в случае возникновения лагов, крючки с типом "Think" будут выполнятся реже. Этот параметр может повлиять на игровой процесс и визуализацию интерфейса.',
 		gopt_update_optimization_second_frame_title = 'Обновлять вторым кадром',
@@ -290,54 +270,6 @@ local function ServerMenu(panel)
 		lang.collision_lags_constraints_flexable_title, lang.collision_lags_constraints_flexable_desc)
 end
 
-local function ScriptsMenu(panel)
-	AddHeaderBox(panel, 'Scripts Optimization')
-
-	AddCheckBox(panel, 'gopt_scripts_optimization',
-		lang.gopt_scripts_optimization_title, lang.gopt_scripts_optimization_desc)
-
-	AddHeaderBox(panel, 'Scripts Cache')
-
-	AddCheckBox(panel, 'gopt_scripts_optimization_cache',
-		lang.gopt_scripts_optimization_cache_title, lang.gopt_scripts_optimization_cache_desc)
-
-	AddCheckBox(panel, 'gopt_scripts_optimization_cache_compress',
-		lang.gopt_scripts_optimization_cache_compress_title, lang.gopt_scripts_optimization_cache_compress_desc)
-
-	AddCheckBox(panel, 'gopt_scripts_optimization_cache_loader',
-		lang.gopt_scripts_optimization_cache_loader_title, lang.gopt_scripts_optimization_cache_loader_desc)
-
-	panel:AddControl('ListBox', {
-		['Label'] = lang.gopt_scripts_optimization_cache_type_title,
-		['Command'] = 'gopt_scripts_optimization_cache_type',
-		['Options'] = {
-			['All'] = {
-				['gopt_scripts_optimization_cache_type'] = 'all',
-			},
-			['File'] = {
-				['gopt_scripts_optimization_cache_type'] = 'file',
-			},
-			['SQL'] = {
-				['gopt_scripts_optimization_cache_type'] = 'sql',
-			},
-		}
-	}) panel:AddControl('Label', {
-		['Text'] = 'Description: ' .. lang.gopt_scripts_optimization_cache_type_desc,
-	})
-
-	AddHeaderBox(panel, 'Reset Scripts Cache')
-
-	panel:AddControl('Button', {
-		['Label'] = 'Description: ' .. lang.gopt_cl_gopt_clear_scripts_cache_title,
-		['Command'] = 'cl_gopt_clear_scripts_cache',
-	})
-
-	panel:AddControl('Button', {
-		['Label'] = 'Description: ' .. lang.gopt_sv_gopt_clear_scripts_cache_title,
-		['Command'] = 'sv_gopt_clear_scripts_cache',
-	})
-end
-
 hook.Add('AddToolMenuCategories', 'GOpt.RegisterToolCategory', function()
 	spawnmenu.AddToolCategory('Options', 'GOpt', '#GOpt' )
 end)
@@ -351,9 +283,6 @@ hook.Add('PopulateToolMenu', 'GOpt.RegisterToolMenu', function()
 
 	spawnmenu.AddToolMenuOption('Options', 'GOpt', 'GOOPT_Menu_Server',
 		'#Server settings', '', '', ServerMenu)
-
-	spawnmenu.AddToolMenuOption('Options', 'GOpt', 'GOOPT_Menu_Scripts',
-		'#Scripts settings', '', '', ScriptsMenu)
 end)
 
 snet.Callback('cl_gopt_menu_ignore_entities_list_sync', function(_, entities)
