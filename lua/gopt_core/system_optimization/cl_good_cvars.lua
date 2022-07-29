@@ -8,12 +8,12 @@ local changeConvarList = {
 	['r_threaded_renderables'] = '1',
 	['r_queued_ropes'] = '1',
 	['studio_queue_mode'] = '1',
-	['mat_specular'] = '0',
+	-- ['mat_specular'] = '0',
 	['cl_forcepreload'] = '1',
 	['r_fastzreject'] = '1',
-	['mp_decals'] = '50',
-	['r_decals'] = '1024',
-	['r_WaterDrawReflection'] = '0',
+	-- ['mp_decals'] = '50',
+	-- ['r_decals'] = '1024',
+	-- ['r_WaterDrawReflection'] = '0',
 }
 
 local function CvarsOptimization()
