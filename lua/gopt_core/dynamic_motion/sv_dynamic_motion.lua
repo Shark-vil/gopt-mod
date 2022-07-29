@@ -75,10 +75,8 @@ function GOptCore.Api.IsValidStoppedMotionMovement(ent, skip_constraint)
 	if not IsValid(ent) or ent:GetMoveType() ~= MOVETYPE_VPHYSICS then return false end
 	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then return false end
 
-	if cvar_no_childs:GetBool() then
-		for _, v in pairs(constraint_GetAllConstrainedEntities(ent)) do
-			if v ~= ent then return end
-		end
+	if cvar_no_childs:GetBool() and constraint.HasConstraints(ent) then
+		return
 	end
 
 	if GOptCore.Api.IsMotionLocked(ent) then return false end
