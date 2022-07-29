@@ -11,6 +11,7 @@ local updateHooks = {
 	'think',
 	'tick',
 }
+
 local systemHooks = {
 	'slib',
 	'gopt'
