@@ -1,5 +1,7 @@
+local seat_class = 'prop_vehicle_prisoner_pod'
+
 local function SetVehicleNoThink(vehicle)
-	if IsValid(vehicle) and vehicle:GetClass() == 'prop_vehicle_prisoner_pod' then
+	if IsValid(vehicle) and vehicle:GetClass() == seat_class then
 		vehicle:AddEFlags(EFL_NO_THINK_FUNCTION)
 	end
 end
@@ -24,7 +26,7 @@ hook.Add('PlayerLeaveVehicle', 'VehicleSeatsOptimizeLeave', function(ply, vehicl
 end)
 
 hook.Add('PlayerEnteredVehicle', 'VehicleSeatsOptimizeLeave', function(ply, vehicle)
-	if IsValid(vehicle) and vehicle:GetClass() == 'prop_vehicle_prisoner_pod' then
+	if IsValid(vehicle) and vehicle:GetClass() == seat_class then
 		local animate = vehicle:GetSaveTable()
 		if animate['m_bEnterAnimOn'] or animate['m_bExitAnimOn'] then
 			vehicle:RemoveEFlags(EFL_NO_THINK_FUNCTION)
