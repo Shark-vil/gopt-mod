@@ -1,3 +1,4 @@
+--[[
 local GetConVar = GetConVar
 local warning_color = Color(245, 148,22)
 local text_color = Color(185, 185, 185)
@@ -194,3 +195,4 @@ function hook.GetTable()
 
 	return hooks_list
 end
+--]]

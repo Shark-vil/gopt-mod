@@ -6,6 +6,7 @@ local string_StartWith = string.StartWith
 local string_Trim = string.Trim
 local isstring = isstring
 local IsFocus = GOptCore.Api.IsGameFocus
+local isfunction = isfunction
 
 local updateHooks = {
 	'think',
@@ -33,7 +34,9 @@ local function IsSystemHook(hookName)
 end
 
 local function OverrideHookAdd()
-	function hook.Add(hookType, hookName, func)
+	function hook.Add(hookType, hookName, func, ...)
+		if not isfunction(func) then return end
+
 		local normalHookType = string_Trim(hookType:lower())
 		local hasSecondFrame = false
 		local useSecondFrame = GetConVar('gopt_update_optimization_second_frame'):GetBool()
@@ -49,7 +52,7 @@ local function OverrideHookAdd()
 				if not hasSecondFrame then return end
 			end
 			return func(...)
-		end)
+		end, ...)
 	end
 end
 

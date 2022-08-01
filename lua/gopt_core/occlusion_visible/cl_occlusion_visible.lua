@@ -7,15 +7,13 @@ local ents_GetAll = ents.GetAll
 local math_floor = math.floor
 local IsLag = GOptCore.Api.IsLag
 local LagDifference = GOptCore.Api.LagDifference
+local IsValidOcclusionCheck = GOptCore.Api.IsValidOcclusionCheck
+local table_HasValueBySeq = table.HasValueBySeq
 --
 local current_pass = 0
 local always_draw_distance = 1000000
 local draw_distance = 4000000
 local is_occlusion_trace = false
-local cvar_occlusion_ignore_npc = GetConVar('gopt_occlusion_ignore_npc')
-local cvar_occlusion_ignore_players = GetConVar('gopt_occlusion_ignore_players')
-local cvar_occlusion_ignore_vehicles = GetConVar('gopt_occlusion_ignore_vehicles')
--- local class_prop_physics = 'prop_physics'
 
 local function SetOcclusionTrace(value)
 	value = value or GetConVar('gopt_occlusion_trace'):GetBool()
@@ -32,29 +30,6 @@ local function SetAlwaysDrawDistance(value)
 	value = value or GetConVar('gopt_occlusion_visible_min'):GetInt()
 	always_draw_distance = tonumber(value)
 	always_draw_distance = always_draw_distance ^ 2
-end
-
-local function IsValidEntity(ent)
-		if IsValid(ent) and ent ~= LocalPlayer() and not ent.isBgnActor and not ent:slibIsDoor() then
-			local is_npc = ent:IsNPC() or ent:IsNextBot()
-			if is_npc then
-				return not cvar_occlusion_ignore_npc:GetBool()
-			end
-
-			local is_vehicle = ent:IsVehicle()
-			if is_vehicle then
-				return not cvar_occlusion_ignore_vehicles:GetBool()
-			end
-
-			local is_player = ent:IsPlayer()
-			if is_player then
-				return not cvar_occlusion_ignore_players:GetBool()
-			end
-
-			return true
-		end
-
-		return false
 end
 
 local function AsyncProcess(yield, wait)
@@ -87,7 +62,7 @@ local function AsyncProcess(yield, wait)
 			for i = 1, #entities do
 				local ent = entities[i]
 
-				if IsValidEntity(ent) and not table.HasValueBySeq(playerWeapons, ent) then
+				if IsValidOcclusionCheck(ent) and not table_HasValueBySeq(playerWeapons, ent) then
 					local entity_position = ent:GetPos()
 					local distance = entity_position:DistToSqr(position)
 					local is_draw = draw_distance == 0 or distance <= draw_distance

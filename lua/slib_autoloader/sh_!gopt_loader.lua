@@ -37,6 +37,7 @@ script:using('collision_lags/sv_collision_lags.lua')
 script:using('lagging_builds/sv_lagging_builds.lua')
 script:using('lagging_builds/cl_lagging_notify.lua')
 
+script:using('occlusion_visible/cl_occlusion_functions.lua')
 script:using('occlusion_visible/cl_occlusion_visible.lua')
 script:using('occlusion_visible/cl_entity_culling.lua')
 
