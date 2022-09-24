@@ -3,8 +3,9 @@ local ents_GetAll = ents.GetAll
 local IsLag = GOptCore.Api.IsLag
 local RemoveWaitMotion = GOptCore.Api.RemoveWaitMotion
 local RemoveSmoothUnfreeze = GOptCore.Api.RemoveSmoothUnfreeze
-local GetConstraintEntities = GOptCore.Api.GetConstraintEntities
+local GetConstraintEntities = constraint.GetAllConstrainedEntities
 local table_sort = table.sort
+local table_ValuesToArray = table.ValuesToArray
 local table_WhereFindBySeq = table.WhereFindBySeq
 local IsSkippedClass = GOptCore.Api.IsSkippedClass
 local WriteLog = GOptCore.Api.WriteLog
@@ -58,8 +59,8 @@ local function RunningLagFixerAsync(yield, wait)
 
 		for i = 1, #entities do
 			local ent = entities[i]
-			if IsValid(ent) and not used_ents[ent] then
-				local childs = GetConstraintEntities(ent)
+			if IsValid(ent) and ent:EntIndex() ~= 0 and not used_ents[ent] then
+				local childs = table_ValuesToArray(GetConstraintEntities(ent))
 				local count = #childs
 
 				if count == 1 then
@@ -161,7 +162,7 @@ local function RunningLagFixerAsync(yield, wait)
 		end
 	end
 
-	yield()
+	wait(3)
 
 	do
 		Notify('Unable to fix lags. Hard freezing is applied.')

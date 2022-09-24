@@ -1,5 +1,6 @@
 local IsValid = IsValid
-local GetConstraintEntities = GOptCore.Api.GetConstraintEntities
+local pairs = pairs
+local GetConstraintEntities = constraint.GetAllConstrainedEntities
 local IsMotionLocked = GOptCore.Api.IsMotionLocked
 local SetLockMotion = GOptCore.Api.SetLockMotion
 local RemoveWaitMotion = GOptCore.Api.RemoveWaitMotion
@@ -8,8 +9,7 @@ local AddMotionDelay = GOptCore.Api.AddMotionDelay
 
 hook.Add('OnPhysgunPickup', 'GOpt.MotionPhysgunPickup', function(_, ent)
 	local entities = GetConstraintEntities(ent)
-	for i = 1, #entities do
-		local other_ent = entities[i]
+	for _, other_ent in pairs(entities) do
 		other_ent.GOpt_MotionPhysgunFreeze = true
 
 		if IsMotionLocked(other_ent) then
@@ -35,8 +35,7 @@ hook.Add('PhysgunDrop', 'GOpt.MotionPhysgunDrop', function(_, ent)
 	end
 
 	local entities = GetConstraintEntities(ent)
-	for i = 1, #entities do
-		local other_ent = entities[i]
+	for _, other_ent in pairs(entities) do
 		if other_ent.GOpt_MotionPhysgunFreeze then
 			other_ent.GOpt_MotionPhysgunFreeze = false
 			AddMotionDelay(other_ent)
@@ -50,8 +49,7 @@ hook.Add('OnPhysgunFreeze', 'GOpt.MotionPhysgunFreeze', function(_, phy, ent)
 	on_physgun_freeze_entities[ent] = true
 
 	local entities = GetConstraintEntities(ent)
-	for i = 1, #entities do
-		local other_ent = entities[i]
+	for _, other_ent in pairs(entities) do
 		if other_ent.GOpt_MotionPhysgunFreeze then
 			other_ent.GOpt_MotionPhysgunFreeze = true
 			AddMotionDelay(other_ent)

@@ -1,7 +1,8 @@
 local IsValid = IsValid
 local GetConVar = GetConVar
 local AddWaitMotion = GOptCore.Api.AddWaitMotion
-local GetConstraintEntities = GOptCore.Api.GetConstraintEntities
+local pairs = pairs
+local GetConstraintEntities = constraint.GetAllConstrainedEntities
 local GetWaitMotionEntities = GOptCore.Api.GetWaitMotionEntities
 local IsMotionLocked = GOptCore.Api.IsMotionLocked
 local AddMotionDelay = GOptCore.Api.AddMotionDelay
@@ -26,9 +27,9 @@ async.Add('GOpt.DynamicMotion.EnableWaitEntities', function(yield, wait)
 					SetLockMotion(ent, false)
 
 					local entities = GetConstraintEntities(ent)
-					for k = 1, #entities do
-						if entities[k] ~= ent then
-							AddWaitMotion(entities[k])
+					for _, other_ent in pairs(entities) do
+						if other_ent ~= ent then
+							AddWaitMotion(other_ent)
 						end
 					end
 

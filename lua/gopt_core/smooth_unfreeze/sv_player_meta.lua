@@ -2,7 +2,8 @@ local IsValid = IsValid
 local CurTime = CurTime
 local AddSmoothUnfreeze = GOptCore.Api.AddSmoothUnfreeze
 local IsSmoothUnfreeze = GOptCore.Api.IsSmoothUnfreeze
-local GetConstraintEntities = GOptCore.Api.GetConstraintEntities
+local pairs = pairs
+local GetConstraintEntities = constraint.GetAllConstrainedEntities
 --
 local meta = FindMetaTable('Player')
 
@@ -27,9 +28,7 @@ function meta:PhysgunUnfreeze(...)
 	if not IsSmoothUnfreeze(ent) then
 		local entities = GetConstraintEntities(ent)
 
-		for i = 1, #entities do
-			local other_ent = entities[i]
-
+		for _, other_ent in pairs(entities) do
 			if IsSmoothUnfreeze(other_ent) then
 				continue
 			end
