@@ -62,6 +62,8 @@ if useUpdateOptimization then
 end
 
 hook.Add('InitPostEntity', 'GOpt.UpdateOptimizer.Init', function()
+	if not useUpdateOptimization then return end
+
 	timer.Simple(1, function()
 		local allowHooks = hook.GetTable()
 		if allowHooks['Think'] then
