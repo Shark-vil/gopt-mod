@@ -1,7 +1,5 @@
 local IsValid = IsValid
 local table_remove = table.remove
-local constraint_GetAllConstrainedEntities = constraint.GetAllConstrainedEntities
-local pairs = pairs
 local math_abs = math.abs
 local MOVETYPE_VPHYSICS = MOVETYPE_VPHYSICS
 --
@@ -55,20 +53,6 @@ function GOptCore.Api.RemoveWaitMotionById(index)
 	local count = #wait_entities
 	if count == 0 or count < index then return end
 	table_remove(wait_entities, index)
-end
-
-function GOptCore.Api.GetConstraintEntities(ent)
-	local entities = { ent }
-	local index = 1
-
-	for k, v in pairs(constraint_GetAllConstrainedEntities(ent)) do
-		if v ~= ent then
-			index = index + 1
-			entities[index] = v
-		end
-	end
-
-	return entities
 end
 
 function GOptCore.Api.IsValidStoppedMotionMovement(ent, skip_constraint)
