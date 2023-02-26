@@ -66,17 +66,28 @@ if CLIENT then
 		{ FCVAR_ARCHIVE }, '', 0, 1)
 end
 
-CreateConVar('gopt_log', '1',
+scvar.Register('gopt_occlusion_visible_server', '1',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
+
+scvar.Register('gopt_occlusion_trace_server', '1',
+	{ FCVAR_ARCHIVE }, '', 0, 30)
+	.Access(DefaultAccess)
+
+scvar.Register('gopt_log', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
 
-CreateConVar('gopt_focus_optimization', '1',
+scvar.Register('gopt_focus_optimization', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
+	.Access(DefaultAccess)
 
-CreateConVar('gopt_update_optimization', '1',
+scvar.Register('gopt_update_optimization', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
+	.Access(DefaultAccess)
 
-CreateConVar('gopt_update_optimization_second_frame', '1',
+scvar.Register('gopt_update_optimization_second_frame', '1',
 	{ FCVAR_ARCHIVE }, '', 0, 1)
+	.Access(DefaultAccess)
 
 scvar.Register('gopt_entity_tickrate_weapon', '0',
 	{ FCVAR_ARCHIVE }, '', 0, 30)

@@ -18,6 +18,10 @@ local lang = slib.language({
 		occlusion_visible_min_desc = 'the minimum distance at which objects will always be visible, even if the player is not looking at them.',
 		occlusion_visible_max_title = 'Maximum visibility distance',
 		occlusion_visible_max_desc = 'the maximum distance beyond which any objects will not be rendered, even if the player is looking at them. Set this value to "0" if you want to always see the objects you are looking at.',
+		occlusion_visible_server_title = 'Area of visibility',
+		occlusion_visible_server_desc = 'Allows you to switch the parameter for all clients.',
+		occlusion_trace_server_title = 'Raytracing visibility',
+		occlusion_trace_server_desc = 'Allows you to switch the parameter for all clients.',
 		anti_crash_title = 'Anti crash',
 		anti_crash_desc = 'if this setting is active, then when lags are detected, the system will try to freeze the most malicious objects, sorting them by their number on the map. Knows how to detect large buildings and the same type of spam entities.',
 		anti_crash_hard_mode_title = 'Anti crash (Hard Mode)',
@@ -73,6 +77,10 @@ local lang = slib.language({
 		occlusion_visible_min_desc = 'минимальное расстояние, на котором объекты всегда будут видны, даже если игрок на них не смотрит.',
 		occlusion_visible_max_title = 'Максимальное расстояние видимости',
 		occlusion_visible_max_desc = 'максимальное расстояние, за которым никакие объекты не будут отображаться, даже если игрок смотрит на них. Установите это значение на "0", если хотите всегда видеть объекты на которые вы смотрите.',
+		occlusion_visible_server_title = 'Зона видимости',
+		occlusion_visible_server_desc = 'Позволяет переключать параметр для всех клиентов.',
+		occlusion_trace_server_title = 'Трассировка зоны видимости',
+		occlusion_trace_server_desc = 'Позволяет переключать параметр для всех клиентов.',
 		anti_crash_title = 'Анти краш',
 		anti_crash_desc = 'если эта настройка активна, то при обнаружении лагов система будет пытаться заморозить наиболее вредоносные объекты, отсортировав их по количеству на карте. Умеет обнаруживать большие постройки и однотипные спам-объекты.',
 		anti_crash_hard_mode_title = 'Анти краш (Жёсткий Режим)',
@@ -166,11 +174,11 @@ local function GeneralMenu(panel)
 		['Text'] = 'Description: ' .. lang.gopt_entity_tickrate,
 	})
 
-	AddSliderBox(panel, 'gopt_entity_tickrate_weapon', 'Weapon', '')
-	AddSliderBox(panel, 'gopt_entity_tickrate_npc', 'NPC', '')
-	AddSliderBox(panel, 'gopt_entity_tickrate_nextbot', 'NextBot', '')
-	AddSliderBox(panel, 'gopt_entity_tickrate_vehicle', 'Vehicle', '')
-	AddSliderBox(panel, 'gopt_entity_tickrate_other', 'Other', '')
+	AddSliderBox(panel, 'gopt_entity_tickrate_weapon', 'Weapon', '', true)
+	AddSliderBox(panel, 'gopt_entity_tickrate_npc', 'NPC', '', true)
+	AddSliderBox(panel, 'gopt_entity_tickrate_nextbot', 'NextBot', '', true)
+	AddSliderBox(panel, 'gopt_entity_tickrate_vehicle', 'Vehicle', '', true)
+	AddSliderBox(panel, 'gopt_entity_tickrate_other', 'Other', '', true)
 
 	panel:AddControl('Label', {
 		['Text'] = 'Ignore Entities',
@@ -254,6 +262,14 @@ local function ClientMenu(panel)
 end
 
 local function ServerMenu(panel)
+	AddHeaderBox(panel, 'Switching client parameters')
+
+	AddCheckBox(panel, 'gopt_occlusion_visible_server',
+		lang.occlusion_visible_server_title, lang.occlusion_visible_server_desc)
+
+	AddCheckBox(panel, 'gopt_occlusion_trace_server',
+		lang.occlusion_trace_server_title, lang.occlusion_trace_server_desc)
+
 	AddHeaderBox(panel, 'Anti Crash')
 
 	AddCheckBox(panel, 'gopt_anti_crash_system',

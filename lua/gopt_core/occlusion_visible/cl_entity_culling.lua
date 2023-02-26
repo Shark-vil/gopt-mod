@@ -22,6 +22,7 @@ local zero_angle = Angle()
 local current_pass = 0
 local local_player = nil
 local cvar_occlusion_visible_strict = GetConVar('gopt_occlusion_visible_strict')
+local cvar_occlusion_visible_server = GetConVar('gopt_occlusion_visible_server')
 
 ---------------------------------------
 -- Functions
@@ -92,6 +93,7 @@ local function trace_entity(ent)
 end
 
 local function handler()
+	if not cvar_occlusion_visible_server:GetBool() then return end
 	local_player = local_player or LocalPlayer()
 	if not local_player or not cvar_occlusion_visible_strict:GetBool() then return end
 

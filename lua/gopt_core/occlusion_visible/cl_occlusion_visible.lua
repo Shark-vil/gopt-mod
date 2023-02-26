@@ -39,9 +39,10 @@ local function AsyncProcess(yield, wait)
 
 	local cvar_occlusion_visible = GetConVar('gopt_occlusion_visible')
 	local cvar_occlusion_visible_strict = GetConVar('gopt_occlusion_visible_strict')
+	local cvar_occlusion_visible_server = GetConVar('gopt_occlusion_visible_server')
 
 	while true do
-		if not cvar_occlusion_visible:GetBool() or cvar_occlusion_visible_strict:GetBool() then
+		if not cvar_occlusion_visible_server:GetBool() or not cvar_occlusion_visible:GetBool() or cvar_occlusion_visible_strict:GetBool() then
 			wait(1)
 		else
 			local ply = LocalPlayer()
